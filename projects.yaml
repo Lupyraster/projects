@@ -3,28 +3,34 @@ site:
   owner: Lupyraster
   updated: September 16, 2026
   introduction: >-
-    This is the current order of my substantial non-work projects. Queue
-    position means priority when a project is runnable; waiting projects may be
-    temporarily passed by the next project that can move forward.
+    ... (intro no longer necessary?)
 
 projects:
-  - title: Wall crash for Mana
+  - title: Wall crash for [name]
     activity: Active
     commitment: Committed
-    focus: Current focus
+    focus: Current
     summary: A special-effect request currently receiving my primary project time.
     waiting_on: Nothing right now
     steps:
-      - name: Confirm the final look
-        status: Done
-      - name: Build the effect
-        status: In progress
-      - name: Test it in-world
+      - name: Confirm which world and avatar assets that are already available will be used for this scene
         status: To do
-    help:
-      - role: Final visual references from the requester
-        status: Found
-        kind: Input
+      - name: Build the assets
+        status: In progress
+      - name: Film the scene
+        status: To do
+      - name: Post-production
+        status: To do
+        
+  - title: Example blocking task
+    activity: Active
+    commitment: Committed
+    focus: Current
+    summary: Summary of a task that can't proceed yet
+    waiting_on: Need clarification about shajdlhfklw
+    steps:
+      - name: Need clarification about aldskfhkasjhgk
+        status: To do
 
   - title: "ULARP: optimize and bug fix"
     activity: Queued
@@ -32,28 +38,18 @@ projects:
     focus: Within weeks
     summary: Performance work and fixes for the world before adding more features.
     steps:
-      - name: Profile the busiest scenes
+      - name: Improve framerate when there are lots of walls
         status: To do
-      - name: Reduce wall-rendering cost
+      - name: Make concurrent wall placements not interfere with each other
         status: To do
-      - name: Regression test with a full group
+      - name: Make sure late-joiners will see the correct terrain
         status: To do
-    help:
-      - role: Group playtesters
-        status: Needed
-        kind: Volunteer
-        note: A short multiplayer test after the optimization pass.
 
   - title: "ULARP: add video player for [name]"
     activity: Queued
     commitment: Committed
     focus: Within weeks
-    summary: Add an in-world player after the related optimization work above it.
-    help:
-      - role: Video URLs and playback requirements
-        status: Tentative
-        kind: Input
-        note: I may need final source URLs and access expectations from the requester.
+    summary: In-world video player
 
   - title: "Video: [name]"
     activity: Incubating
@@ -78,7 +74,7 @@ projects:
       - name: Post-production
         status: To do
     help:
-      - role: Female voice actor
+      - role: Voice actress - half-body ok
         status: Tentative
         kind: Volunteer
         note: ...
@@ -96,15 +92,19 @@ projects:
       - role: 3D modeler
         status: Needed
         kind: Volunteer
-        note: Model a small, consistent set of readable board pieces.
-      - role: Playtesters
+        note: Create a set of low-poly board game pieces. Volunteer position - but when I start making money from Patreon, I will start commissioning you.
+      - role: 3D environment artist
         status: Needed
         kind: Volunteer
-        note: Test rules, pacing, and deadlock risks.
+        note: Create the geometry and textures for a simple, cozy game world. Volunteer position - but when I start making money from Patreon, I will start commissioning you.
+      - role: Play Testers
+        status: Needed
+        kind: Volunteer
+        note: 
 
   - title: "Dragon and the Princess"
     activity: Parked
     commitment: Very Tentative
-    focus: No near-term window
-    summary: The concept is larger than I can responsibly schedule right now.
+    focus: Too ambitious for the near future
+    summary: 
 

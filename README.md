@@ -15,6 +15,7 @@ python3 -m http.server 8000 --directory dist
 ```
 
 Open <http://localhost:8000/>. Do not edit files in `dist/`; the next build replaces them.
+This local preview does not make a commit, push anything, or contact GitHub. After changing the YAML or site code, stop the server if necessary, run `cargo run` again, and refresh the browser.
 
 The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Tentative`, and `Unlikely`. Activity accepts `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, and `Abandoned`. Help status accepts `Needed`, `Tentative`, and `Found`.
 
@@ -27,9 +28,9 @@ The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Ten
    git init
    git add .
    git commit -m "Create project status site"
-   git branch -M main
+   git branch -M master
    git remote add origin https://github.com/YOUR_USERNAME/projects.git
-   git push -u origin main
+   git push -u origin master
    ```
 
 3. On GitHub, open the repository, then go to **Settings → Pages**. Under **Build and deployment**, set **Source** to **GitHub Actions**.
@@ -45,7 +46,7 @@ git commit -m "Update project statuses"
 git push
 ```
 
-The workflow rebuilds and republishes the site after each push to `main`.
+The workflow rebuilds and republishes the site after each push to `master`.
 
 ## What `git commit -am` does
 

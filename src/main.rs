@@ -13,7 +13,6 @@ struct Data {
 struct Site {
     title: String,
     updated: String,
-    introduction: String,
 }
 
 #[derive(Deserialize)]
@@ -22,8 +21,6 @@ struct Project {
     activity: String,
     commitment: String,
     focus: String,
-    #[serde(default)]
-    summary: String,
     waiting_on: Option<String>,
     #[serde(default)]
     steps: Vec<Step>,
@@ -68,12 +65,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .iter()
         .filter(|project| !matches!(project.activity.as_str(), "Completed" | "Abandoned"))
         .count();
-    let help_count = data
-        .projects
-        .iter()
-        .flat_map(|project| &project.help)
-        .filter(|item| item.status != "Found")
-        .count();
+    let help_count = open_help(&data).len();
     println!("Built {public_count} projects and {help_count} open help items in dist/");
     Ok(())
 }
@@ -152,19 +144,6 @@ fn slug(value: &str) -> String {
     result.trim_end_matches('-').to_string()
 }
 
-fn icon(name: &str) -> String {
-    let paths = match name {
-        "arrow" => r#"<path d="M5 12h14M13 6l6 6-6 6"/>"#,
-        "check" => r#"<path d="m5 12 4 4L19 6"/>"#,
-        "clock" => r#"<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>"#,
-        "people" => {
-            r#"<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>"#
-        }
-        _ => "",
-    };
-    format!(r#"<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">{paths}</svg>"#)
-}
-
 fn pill(text: &str, kind: &str) -> String {
     format!(
         r#"<span class="pill pill--{}">{}</span>"#,
@@ -173,7 +152,7 @@ fn pill(text: &str, kind: &str) -> String {
     )
 }
 
-fn nav(active: &str, prefix: &str) -> String {
+fn nav(data: &Data, active: &str, prefix: &str) -> String {
     let queue_current = if active == "queue" {
         r#" aria-current="page""#
     } else {
@@ -188,15 +167,17 @@ fn nav(active: &str, prefix: &str) -> String {
     format!(
         r#"
   <nav class="site-nav" aria-label="Primary navigation">
-    <a class="brand" href="{home}" aria-label="Project Queue home">
-      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span>Project Queue</span>
-    </a>
-    <div class="nav-links">
-      <a href="{home}"{queue_current}>Queue</a>
-      <a href="{prefix}help/"{help_current}>Help needed</a>
+    <a class="brand" href="{home}">{}</a>
+    <div class="nav-right">
+      <span class="updated">Updated {}</span>
+      <div class="nav-links">
+        <a href="{home}"{queue_current}>Queue</a>
+        <a href="{prefix}help/"{help_current}>Help wanted</a>
+      </div>
     </div>
-  </nav>"#
+  </nav>"#,
+        escape(&data.site.title),
+        escape(&data.site.updated)
     )
 }
 
@@ -209,7 +190,7 @@ fn head(title: &str, description: &str, asset_prefix: &str) -> String {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{}">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#783f3b">
+  <meta name="theme-color" content="#75433f">
   <title>{}</title>
   <link rel="icon" href="{asset_prefix}assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{asset_prefix}assets/style.css">
@@ -219,44 +200,40 @@ fn head(title: &str, description: &str, asset_prefix: &str) -> String {
     )
 }
 
-fn foot(data: &Data, asset_prefix: &str) -> String {
-    let home = if asset_prefix.is_empty() {
-        "./"
-    } else {
-        asset_prefix
-    };
-    format!(
-        r#"
-  <footer class="site-footer">
-    <p>Last updated {}</p>
-    <a href="{home}">Return to the queue {}</a>
-  </footer>
-</body>
-</html>"#,
-        escape(&data.site.updated),
-        icon("arrow")
-    )
+fn foot() -> &'static str {
+    "\n</body>\n</html>"
 }
 
-fn step_list(steps: &[Step]) -> String {
-    if steps.is_empty() {
+fn open_help(data: &Data) -> Vec<(&Project, &HelpItem)> {
+    data.projects
+        .iter()
+        .flat_map(|project| {
+            project
+                .help
+                .iter()
+                .filter(|item| item.status != "Found")
+                .map(move |item| (project, item))
+        })
+        .collect()
+}
+
+fn progress(project: &Project) -> String {
+    if project.steps.is_empty() {
         return String::new();
     }
-    let done = steps.iter().filter(|step| step.status == "Done").count();
-    let rows = steps
+    let done = project
+        .steps
+        .iter()
+        .filter(|step| step.status == "Done")
+        .count();
+    let percentage = done * 100 / project.steps.len();
+    let items = project
+        .steps
         .iter()
         .map(|step| {
-            let mark = if step.status == "Done" {
-                icon("check")
-            } else {
-                String::new()
-            };
+            let marker = if step.status == "Done" { "✓" } else { "" };
             format!(
-                r#"<li class="step step--{}">
-              <span class="step-mark">{mark}</span>
-              <span>{}</span>
-              <span class="step-status">{}</span>
-            </li>"#,
+                r#"<li class="step step--{}"><span class="step-check">{marker}</span><span>{}</span><small>{}</small></li>"#,
                 slug(&step.status),
                 escape(&step.name),
                 escape(&step.status)
@@ -265,66 +242,58 @@ fn step_list(steps: &[Step]) -> String {
         .collect::<String>();
     format!(
         r#"
-    <details class="project-details">
-      <summary>
-        <span>Progress</span>
-        <span class="summary-count">{done} of {} complete</span>
-      </summary>
-      <ul class="steps">{rows}</ul>
-    </details>"#,
-        steps.len()
+      <details class="progress">
+        <summary>
+          <span class="progress-label">Progress</span>
+          <span class="progress-track" aria-hidden="true"><i style="width: {percentage}%"></i></span>
+          <span>{done} of {} steps</span>
+        </summary>
+        <ul class="steps">{items}</ul>
+      </details>"#,
+        project.steps.len()
     )
 }
 
-fn compact_help(items: &[HelpItem]) -> String {
-    let rows = items
+fn project_help(items: &[HelpItem]) -> String {
+    let open = items
         .iter()
         .filter(|item| item.status != "Found")
+        .collect::<Vec<_>>();
+    if open.is_empty() {
+        return String::new();
+    }
+    let roles = open
+        .iter()
         .map(|item| {
+            let status = if item.status == "Tentative" {
+                r#" <span class="need-status">tentative</span>"#.to_string()
+            } else {
+                String::new()
+            };
             format!(
-                "<span>{} {}</span>",
-                escape(&item.role),
-                pill(&item.status, &format!("help-{}", item.status))
+                r#"<span class="need-item">{}{status}</span>"#,
+                escape(&item.role)
             )
         })
         .collect::<String>();
-    if rows.is_empty() {
-        String::new()
-    } else {
-        format!(
-            r#"
-    <div class="card-help">
-      <div class="card-help__label">{} Help</div>
-      <div class="card-help__items">{rows}</div>
-    </div>"#,
-            icon("people")
-        )
-    }
+    format!(
+        r#"
+      <div class="project-needs"><span class="needs-label">Needs</span><div>{roles}</div></div>"#
+    )
 }
 
-fn project_card(project: &Project, number: &str, featured: bool) -> String {
-    let featured_class = if featured {
-        " project-card--featured"
-    } else {
-        ""
-    };
-    let number_text = if featured { "NOW" } else { number };
-    let number_label = if featured {
-        "Current focus".to_string()
-    } else {
-        format!("Queue position {number}")
-    };
-    let summary = if project.summary.is_empty() {
-        String::new()
-    } else {
-        format!(
-            r#"<p class="project-summary">{}</p>"#,
-            escape(&project.summary)
-        )
+fn project_row(project: &Project, position: Option<usize>, context: &str) -> String {
+    let rank = position
+        .map(|number| format!(r#"<span class="rank">{number}</span>"#))
+        .unwrap_or_default();
+    let activity = match (context, project.activity.as_str()) {
+        ("queue", "Queued") | ("current", "Active") => String::new(),
+        _ => pill(&project.activity, &format!("activity-{}", project.activity)),
     };
     let waiting = project
         .waiting_on
         .as_ref()
+        .filter(|value| !value.trim().is_empty())
         .map(|value| {
             format!(
                 r#"<p class="waiting"><strong>Waiting on:</strong> {}</p>"#,
@@ -335,36 +304,55 @@ fn project_card(project: &Project, number: &str, featured: bool) -> String {
 
     format!(
         r#"
-  <article class="project-card{featured_class}">
-    <div class="queue-number" aria-label="{}">{number_text}</div>
-    <div class="project-main">
-      <div class="project-heading">
-        <div>
-          <div class="project-pills">
-            {}
-            {}
-          </div>
-          <h2>{}</h2>
-        </div>
-        <div class="focus-time">{}<span><small>Expected focus</small>{}</span></div>
+  <article class="project-row project-row--{context}" id="{}">
+    {rank}
+    <div class="project-content">
+      <div class="project-title-line">
+        <h3>{}</h3>
+        <div class="project-tags">{}{activity}</div>
       </div>
-      {summary}
+      <div class="project-meta"><span class="focus"><strong>Focus</strong> {}</span></div>
       {waiting}
       {}
       {}
     </div>
   </article>"#,
-        escape(&number_label),
-        pill(&project.activity, &format!("activity-{}", project.activity)),
+        slug(&project.title),
+        escape(&project.title),
         pill(
             &project.commitment,
             &format!("commitment-{}", project.commitment)
         ),
-        escape(&project.title),
-        icon("clock"),
         escape(&project.focus),
-        compact_help(&project.help),
-        step_list(&project.steps)
+        project_help(&project.help),
+        progress(project)
+    )
+}
+
+fn help_overview(data: &Data) -> String {
+    let help = open_help(data);
+    let items = help
+        .iter()
+        .map(|(project, item)| {
+            let tentative = if item.status == "Tentative" {
+                r#"<span class="overview-status">tentative</span>"#
+            } else {
+                ""
+            };
+            format!(
+                r##"<li><a href="#{}"><span>{}</span><small>{}</small></a>{tentative}</li>"##,
+                slug(&project.title),
+                escape(&item.role),
+                escape(&project.title)
+            )
+        })
+        .collect::<String>();
+    format!(
+        r#"
+    <aside class="help-overview" aria-labelledby="help-overview-title">
+      <div class="panel-heading"><h2 id="help-overview-title">Help wanted</h2></div>
+      <ul>{items}</ul>
+    </aside>"#
     )
 }
 
@@ -385,29 +373,29 @@ fn render_queue(data: &Data) -> String {
         .filter(|project| matches!(project.activity.as_str(), "Incubating" | "Parked"))
         .collect::<Vec<_>>();
 
-    let active_cards = if active.is_empty() {
-        r#"<p class="empty-state">No project is marked active right now.</p>"#.into()
+    let active_rows = if active.is_empty() {
+        r#"<p class="empty-state">No current project.</p>"#.into()
     } else {
         active
             .iter()
-            .map(|project| project_card(project, "0", true))
+            .map(|project| project_row(project, None, "current"))
             .collect::<String>()
     };
-    let queue_cards = if queue.is_empty() {
+    let queue_rows = if queue.is_empty() {
         r#"<p class="empty-state">The queue is empty.</p>"#.into()
     } else {
         queue
             .iter()
             .enumerate()
-            .map(|(index, project)| project_card(project, &format!("{:02}", index + 1), false))
+            .map(|(index, project)| project_row(project, Some(index + 1), "queue"))
             .collect::<String>()
     };
-    let later_cards = if later.is_empty() {
+    let later_rows = if later.is_empty() {
         r#"<p class="empty-state">Nothing is waiting off-queue.</p>"#.into()
     } else {
         later
             .iter()
-            .map(|project| project_card(project, "—", false))
+            .map(|project| project_row(project, None, "later"))
             .collect::<String>()
     };
 
@@ -415,121 +403,91 @@ fn render_queue(data: &Data) -> String {
         r#"{}
 <body>
   <header class="shell">{}</header>
-  <main class="shell">
-    <section class="page-intro" aria-labelledby="queue-title">
-      <p class="eyebrow">Public project status</p>
-      <h1 id="queue-title">What I’m working on,<br><em>and what comes next.</em></h1>
-      <p>{}</p>
-      <a class="help-callout" href="help/">
-        {}
-        <span><strong>Want to help?</strong> See the roles and project input I currently need.</span>
-        {}
-      </a>
+  <main class="shell main-content">
+    <h1 class="sr-only">{}</h1>
+    <div class="overview">
+      <section class="current-panel" aria-labelledby="current-heading">
+        <div class="panel-heading"><h2 id="current-heading">Current focus</h2></div>
+        {active_rows}
+      </section>
+      {}
+    </div>
+
+    <section class="project-section" aria-labelledby="queue-heading">
+      <div class="section-heading"><h2 id="queue-heading">Up next</h2><span>{} projects</span></div>
+      <div class="project-list">{queue_rows}</div>
     </section>
 
-    <section class="queue-section" aria-labelledby="current-heading">
-      <div class="section-heading"><span>01</span><h2 id="current-heading">Current focus</h2></div>
-      <div class="project-list">{active_cards}</div>
-    </section>
-
-    <section class="queue-section" aria-labelledby="next-heading">
-      <div class="section-heading"><span>02</span><h2 id="next-heading">Up next</h2><p>Priority order when runnable</p></div>
-      <div class="project-list project-list--numbered">{queue_cards}</div>
-    </section>
-
-    <section class="queue-section queue-section--later" aria-labelledby="later-heading">
-      <div class="section-heading"><span>03</span><h2 id="later-heading">Incubating &amp; later</h2><p>Useful work may happen, but these have no firm queue position</p></div>
-      <div class="project-list project-list--later">{later_cards}</div>
+    <section class="project-section project-section--later" aria-labelledby="later-heading">
+      <div class="section-heading"><h2 id="later-heading">Later</h2><span>Not in the active queue</span></div>
+      <div class="project-list">{later_rows}</div>
     </section>
   </main>
   {}"#,
-        head(&data.site.title, &data.site.introduction, ""),
-        nav("queue", ""),
-        escape(&data.site.introduction),
-        icon("people"),
-        icon("arrow"),
-        foot(data, "")
+        head(
+            &data.site.title,
+            "Current project status, queue, progress, and open help requests.",
+            ""
+        ),
+        nav(data, "queue", ""),
+        escape(&data.site.title),
+        help_overview(data),
+        queue.len(),
+        foot()
     )
 }
 
 fn render_help(data: &Data) -> String {
-    let cards = data
-        .projects
+    let help = open_help(data);
+    let rows = help
         .iter()
-        .flat_map(|project| {
-            project
-                .help
-                .iter()
-                .filter(|item| item.status != "Found")
-                .map(move |item| (project, item))
-        })
         .map(|(project, item)| {
             let kind = item.kind.as_deref().unwrap_or("Help");
             let note = item
                 .note
                 .as_ref()
-                .map(|note| format!("<p>{}</p>", escape(note)))
+                .map(|note| format!(r#"<p class="help-note">{}</p>"#, escape(note)))
                 .unwrap_or_default();
             format!(
                 r#"
-          <article class="help-card">
-            <div class="help-card__top">
-              {}
-              {}
-            </div>
-            <h2>{}</h2>
-            <p class="help-project">For <strong>{}</strong></p>
-            {note}
-            <div class="help-card__meta">
-              {}
-              <span>{}</span>
-            </div>
-          </article>"#,
-                pill(kind, "help-kind"),
-                pill(&item.status, &format!("help-{}", item.status)),
+      <article class="help-row">
+        <div class="help-row-main">
+          <div class="help-title-line"><h2>{}</h2>{}</div>
+          <p><a href="../#{}">{}</a><span aria-hidden="true"> · </span>{}<span aria-hidden="true"> · </span>{}</p>
+          {note}
+        </div>
+      </article>"#,
                 escape(&item.role),
+                pill(&item.status, &format!("help-{}", item.status)),
+                slug(&project.title),
                 escape(&project.title),
-                pill(&project.activity, &format!("activity-{}", project.activity)),
+                escape(kind),
                 escape(&project.focus)
             )
         })
         .collect::<String>();
-    let cards = if cards.is_empty() {
+    let rows = if rows.is_empty() {
         r#"<p class="empty-state">Nothing is currently open.</p>"#.into()
     } else {
-        cards
+        rows
     };
 
     format!(
         r#"{}
 <body>
   <header class="shell">{}</header>
-  <main class="shell">
-    <section class="page-intro page-intro--help" aria-labelledby="help-title">
-      <p class="eyebrow">Open roles &amp; requests</p>
-      <h1 id="help-title">Ways to help.</h1>
-      <p>These projects need a person, a test, or information. <strong>Needed</strong> items are open; <strong>Tentative</strong> items have a possible helper or may still need confirmation.</p>
-    </section>
-
-    <section class="help-grid" aria-label="Open help requests">{cards}</section>
-
-    <aside class="legend">
-      <h2>What the labels mean</h2>
-      <dl>
-        <div><dt>{}</dt><dd>The role or input is currently open.</dd></div>
-        <div><dt>{}</dt><dd>Someone may be available, or I still need to confirm the details.</dd></div>
-      </dl>
-    </aside>
+  <main class="shell main-content help-page">
+    <div class="page-heading"><h1>Help wanted</h1><span>{} open items</span></div>
+    <div class="help-list">{rows}</div>
   </main>
   {}"#,
         head(
-            &format!("Help needed · {}", data.site.title),
-            "Open volunteer roles and requested project input.",
+            &format!("Help wanted · {}", data.site.title),
+            "Current volunteer roles and project input requests.",
             "../"
         ),
-        nav("help", "../"),
-        pill("Needed", "help-Needed"),
-        pill("Tentative", "help-Tentative"),
-        foot(data, "../")
+        nav(data, "help", "../"),
+        help.len(),
+        foot()
     )
 }
