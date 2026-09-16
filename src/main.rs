@@ -1,7 +1,9 @@
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
-use std::path::Path;
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
+use std::path::{Component, Path, PathBuf};
 
 #[derive(Deserialize)]
 struct Data {
@@ -20,7 +22,8 @@ struct Project {
     title: String,
     activity: String,
     commitment: String,
-    focus: String,
+    #[serde(default)]
+    focus: Option<String>,
     waiting_on: Option<String>,
     #[serde(default)]
     steps: Vec<Step>,
@@ -42,7 +45,66 @@ struct HelpItem {
     note: Option<String>,
 }
 
+struct Options {
+    serve: bool,
+    port: u16,
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let Some(options) = parse_options()? else {
+        return Ok(());
+    };
+    build_site()?;
+    if options.serve {
+        serve(Path::new("dist"), options.port)?;
+    }
+    Ok(())
+}
+
+fn parse_options() -> Result<Option<Options>, String> {
+    let mut serve = false;
+    let mut port = 8000;
+    let mut arguments = std::env::args().skip(1);
+
+    while let Some(argument) = arguments.next() {
+        match argument.as_str() {
+            "--serve" => serve = true,
+            "--port" => {
+                let value = arguments
+                    .next()
+                    .ok_or_else(|| "--port requires a number".to_string())?;
+                port = value
+                    .parse::<u16>()
+                    .map_err(|_| format!("invalid port: {value}"))?;
+            }
+            "--help" | "-h" => {
+                print_help();
+                return Ok(None);
+            }
+            _ => {
+                return Err(format!(
+                    "unknown option: {argument}\nRun with --help for usage."
+                ));
+            }
+        }
+    }
+
+    if !serve && port != 8000 {
+        return Err("--port can only be used with --serve".into());
+    }
+    Ok(Some(Options { serve, port }))
+}
+
+fn print_help() {
+    println!(
+        "Project Queue generator\n\n\
+         Usage:\n  cargo run [-- OPTIONS]\n\n\
+         Options:\n  --serve        Build the site, then serve it locally\n  --port PORT    Port for --serve (default: 8000)\n  -h, --help     Show this help\n\n\
+         Examples:\n  cargo run\n  cargo run -- --serve\n  cargo run -- --serve --port 8080"
+    );
+}
+
+fn build_site() -> Result<(), Box<dyn std::error::Error>> {
     let raw = fs::read_to_string("projects.yaml")?;
     let data: Data = serde_yaml::from_str(&raw)?;
     validate(&data)?;
@@ -51,11 +113,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if output.exists() {
         fs::remove_dir_all(output)?;
     }
-    fs::create_dir_all(output.join("help"))?;
     fs::create_dir_all(output.join("assets"))?;
 
     fs::write(output.join("index.html"), render_queue(&data))?;
-    fs::write(output.join("help/index.html"), render_help(&data))?;
     fs::copy("static/style.css", output.join("assets/style.css"))?;
     fs::copy("static/favicon.svg", output.join("assets/favicon.svg"))?;
     fs::write(output.join(".nojekyll"), "")?;
@@ -68,6 +128,112 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let help_count = open_help(&data).len();
     println!("Built {public_count} projects and {help_count} open help items in dist/");
     Ok(())
+}
+
+fn serve(root: &Path, port: u16) -> Result<(), Box<dyn std::error::Error>> {
+    let address = format!("127.0.0.1:{port}");
+    let listener = TcpListener::bind(&address)?;
+    println!("Serving at http://{}/", listener.local_addr()?);
+    println!("Press Ctrl+C to stop.");
+
+    for stream in listener.incoming() {
+        match stream {
+            Ok(mut stream) => {
+                if let Err(error) = serve_request(&mut stream, root) {
+                    eprintln!("Request failed: {error}");
+                }
+            }
+            Err(error) => eprintln!("Connection failed: {error}"),
+        }
+    }
+    Ok(())
+}
+
+fn serve_request(stream: &mut TcpStream, root: &Path) -> std::io::Result<()> {
+    let mut buffer = [0_u8; 8192];
+    let bytes_read = stream.read(&mut buffer)?;
+    let request = String::from_utf8_lossy(&buffer[..bytes_read]);
+    let mut parts = request
+        .lines()
+        .next()
+        .unwrap_or_default()
+        .split_whitespace();
+    let method = parts.next().unwrap_or_default();
+    let request_path = parts.next().unwrap_or("/").split('?').next().unwrap_or("/");
+
+    if !matches!(method, "GET" | "HEAD") {
+        return send_response(
+            stream,
+            method,
+            405,
+            "text/plain; charset=utf-8",
+            b"Method not allowed",
+        );
+    }
+
+    let relative = if request_path == "/" {
+        PathBuf::from("index.html")
+    } else {
+        PathBuf::from(request_path.trim_start_matches('/'))
+    };
+    let safe = relative
+        .components()
+        .all(|component| matches!(component, Component::Normal(_)));
+    if !safe {
+        return send_response(
+            stream,
+            method,
+            404,
+            "text/plain; charset=utf-8",
+            b"Not found",
+        );
+    }
+
+    let file = root.join(&relative);
+    match fs::read(&file) {
+        Ok(body) => send_response(stream, method, 200, content_type(&file), &body),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => send_response(
+            stream,
+            method,
+            404,
+            "text/plain; charset=utf-8",
+            b"Not found",
+        ),
+        Err(error) => Err(error),
+    }
+}
+
+fn send_response(
+    stream: &mut TcpStream,
+    method: &str,
+    status: u16,
+    content_type: &str,
+    body: &[u8],
+) -> std::io::Result<()> {
+    let reason = match status {
+        200 => "OK",
+        404 => "Not Found",
+        405 => "Method Not Allowed",
+        _ => "Error",
+    };
+    write!(
+        stream,
+        "HTTP/1.1 {status} {reason}\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n",
+        body.len()
+    )?;
+    if method != "HEAD" {
+        stream.write_all(body)?;
+    }
+    stream.flush()
+}
+
+fn content_type(path: &Path) -> &'static str {
+    match path.extension().and_then(|extension| extension.to_str()) {
+        Some("html") => "text/html; charset=utf-8",
+        Some("css") => "text/css; charset=utf-8",
+        Some("svg") => "image/svg+xml",
+        _ => "application/octet-stream",
+    }
 }
 
 fn validate(data: &Data) -> Result<(), String> {
@@ -152,30 +318,13 @@ fn pill(text: &str, kind: &str) -> String {
     )
 }
 
-fn nav(data: &Data, active: &str, prefix: &str) -> String {
-    let queue_current = if active == "queue" {
-        r#" aria-current="page""#
-    } else {
-        ""
-    };
-    let help_current = if active == "help" {
-        r#" aria-current="page""#
-    } else {
-        ""
-    };
-    let home = if prefix.is_empty() { "./" } else { prefix };
+fn nav(data: &Data) -> String {
     format!(
         r#"
-  <nav class="site-nav" aria-label="Primary navigation">
-    <a class="brand" href="{home}">{}</a>
-    <div class="nav-right">
-      <span class="updated">Updated {}</span>
-      <div class="nav-links">
-        <a href="{home}"{queue_current}>Queue</a>
-        <a href="{prefix}help/"{help_current}>Help wanted</a>
-      </div>
-    </div>
-  </nav>"#,
+  <div class="site-nav">
+    <a class="brand" href="./">{}</a>
+    <span class="updated">Updated {}</span>
+  </div>"#,
         escape(&data.site.title),
         escape(&data.site.updated)
     )
@@ -301,6 +450,17 @@ fn project_row(project: &Project, position: Option<usize>, context: &str) -> Str
             )
         })
         .unwrap_or_default();
+    let focus = project
+        .focus
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .map(|value| {
+            format!(
+                r#"<div class="project-meta"><span class="focus"><strong>Focus</strong> {}</span></div>"#,
+                escape(value)
+            )
+        })
+        .unwrap_or_default();
 
     format!(
         r#"
@@ -311,7 +471,7 @@ fn project_row(project: &Project, position: Option<usize>, context: &str) -> Str
         <h3>{}</h3>
         <div class="project-tags">{}{activity}</div>
       </div>
-      <div class="project-meta"><span class="focus"><strong>Focus</strong> {}</span></div>
+      {focus}
       {waiting}
       {}
       {}
@@ -323,7 +483,6 @@ fn project_row(project: &Project, position: Option<usize>, context: &str) -> Str
             &project.commitment,
             &format!("commitment-{}", project.commitment)
         ),
-        escape(&project.focus),
         project_help(&project.help),
         progress(project)
     )
@@ -334,24 +493,49 @@ fn help_overview(data: &Data) -> String {
     let items = help
         .iter()
         .map(|(project, item)| {
-            let tentative = if item.status == "Tentative" {
-                r#"<span class="overview-status">tentative</span>"#
-            } else {
-                ""
-            };
+            let kind = item.kind.as_deref().unwrap_or("Help");
+            let note = item
+                .note
+                .as_ref()
+                .filter(|value| !value.trim().is_empty())
+                .map(|value| format!(r#"<p>{}</p>"#, escape(value)))
+                .unwrap_or_default();
+            let focus = project
+                .focus
+                .as_deref()
+                .filter(|value| !value.trim().is_empty())
+                .map(|value| format!(r#"<div><dt>Focus</dt><dd>{}</dd></div>"#, escape(value)))
+                .unwrap_or_default();
             format!(
-                r##"<li><a href="#{}"><span>{}</span><small>{}</small></a>{tentative}</li>"##,
-                slug(&project.title),
+                r#"
+      <details class="help-item">
+        <summary>
+          <span class="help-chevron" aria-hidden="true"></span>
+          <span class="help-role">{}</span>
+          <span class="help-project">{}</span>
+          <span class="help-status help-status--{}">{}</span>
+        </summary>
+        <div class="help-detail">
+          {note}
+          <dl>
+            <div><dt>Type</dt><dd>{}</dd></div>
+            {focus}
+          </dl>
+        </div>
+      </details>"#,
                 escape(&item.role),
-                escape(&project.title)
+                escape(&project.title),
+                slug(&item.status),
+                escape(&item.status),
+                escape(kind)
             )
         })
         .collect::<String>();
     format!(
         r#"
     <aside class="help-overview" aria-labelledby="help-overview-title">
-      <div class="panel-heading"><h2 id="help-overview-title">Help wanted</h2></div>
-      <ul>{items}</ul>
+      <div class="panel-heading"><h2 id="help-overview-title">Help Wanted</h2></div>
+      <div class="help-items">{items}</div>
     </aside>"#
     )
 }
@@ -407,19 +591,19 @@ fn render_queue(data: &Data) -> String {
     <h1 class="sr-only">{}</h1>
     <div class="overview">
       <section class="current-panel" aria-labelledby="current-heading">
-        <div class="panel-heading"><h2 id="current-heading">Current focus</h2></div>
+        <div class="panel-heading"><h2 id="current-heading">Current Focus</h2></div>
         {active_rows}
       </section>
       {}
     </div>
 
     <section class="project-section" aria-labelledby="queue-heading">
-      <div class="section-heading"><h2 id="queue-heading">Up next</h2><span>{} projects</span></div>
+      <div class="section-heading"><h2 id="queue-heading">Up Next</h2><span>{} projects</span></div>
       <div class="project-list">{queue_rows}</div>
     </section>
 
     <section class="project-section project-section--later" aria-labelledby="later-heading">
-      <div class="section-heading"><h2 id="later-heading">Later</h2><span>Not in the active queue</span></div>
+      <div class="section-heading"><h2 id="later-heading">Later</h2></div>
       <div class="project-list">{later_rows}</div>
     </section>
   </main>
@@ -429,65 +613,10 @@ fn render_queue(data: &Data) -> String {
             "Current project status, queue, progress, and open help requests.",
             ""
         ),
-        nav(data, "queue", ""),
+        nav(data),
         escape(&data.site.title),
         help_overview(data),
         queue.len(),
-        foot()
-    )
-}
-
-fn render_help(data: &Data) -> String {
-    let help = open_help(data);
-    let rows = help
-        .iter()
-        .map(|(project, item)| {
-            let kind = item.kind.as_deref().unwrap_or("Help");
-            let note = item
-                .note
-                .as_ref()
-                .map(|note| format!(r#"<p class="help-note">{}</p>"#, escape(note)))
-                .unwrap_or_default();
-            format!(
-                r#"
-      <article class="help-row">
-        <div class="help-row-main">
-          <div class="help-title-line"><h2>{}</h2>{}</div>
-          <p><a href="../#{}">{}</a><span aria-hidden="true"> · </span>{}<span aria-hidden="true"> · </span>{}</p>
-          {note}
-        </div>
-      </article>"#,
-                escape(&item.role),
-                pill(&item.status, &format!("help-{}", item.status)),
-                slug(&project.title),
-                escape(&project.title),
-                escape(kind),
-                escape(&project.focus)
-            )
-        })
-        .collect::<String>();
-    let rows = if rows.is_empty() {
-        r#"<p class="empty-state">Nothing is currently open.</p>"#.into()
-    } else {
-        rows
-    };
-
-    format!(
-        r#"{}
-<body>
-  <header class="shell">{}</header>
-  <main class="shell main-content help-page">
-    <div class="page-heading"><h1>Help wanted</h1><span>{} open items</span></div>
-    <div class="help-list">{rows}</div>
-  </main>
-  {}"#,
-        head(
-            &format!("Help wanted · {}", data.site.title),
-            "Current volunteer roles and project input requests.",
-            "../"
-        ),
-        nav(data, "help", "../"),
-        help.len(),
         foot()
     )
 }

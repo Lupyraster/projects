@@ -9,12 +9,12 @@ projects:
   - title: Wall crash for [name]
     activity: Active
     commitment: Committed
-    focus: Current
-    summary: A special-effect request currently receiving my primary project time.
-    waiting_on: Nothing right now
+    # focus: Current
+    summary: The wall 'splode.
+    waiting_on: Still need to know which world and avatar assets will be used for this scene.
     steps:
-      - name: Confirm which world and avatar assets that are already available will be used for this scene
-        status: To do
+#      - name: Confirm which world and avatar assets that are already available will be used for this scene
+#        status: To do
       - name: Build the assets
         status: In progress
       - name: Film the scene
@@ -22,15 +22,15 @@ projects:
       - name: Post-production
         status: To do
         
-  - title: Example blocking task
-    activity: Active
-    commitment: Committed
-    focus: Current
-    summary: Summary of a task that can't proceed yet
-    waiting_on: Need clarification about shajdlhfklw
-    steps:
-      - name: Need clarification about aldskfhkasjhgk
-        status: To do
+#  - title: Example blocking task
+#    activity: Active
+#    commitment: Committed
+ #   focus: Current
+ #   summary: Summary of a task that can't proceed yet
+ #   waiting_on: Need clarification about shajdlhfklw
+  #  steps:
+   #   - name: Need clarification about aldskfhkasjhgk
+   #     status: To do
 
   - title: "ULARP: optimize and bug fix"
     activity: Queued
@@ -51,39 +51,7 @@ projects:
     focus: Within weeks
     summary: In-world video player
 
-  - title: "Video: [name]"
-    activity: Incubating
-    commitment: Likely
-    focus: Around 2 months
-    summary: Writing can continue in the background before this enters full production.
-    steps:
-      - name: Writing
-        status: Done
-      - name: Avatar with sword
-        status: To do
-      - name: Avatar with page
-        status: To do
-      - name: Avatar with colored panel
-        status: To do
-      - name: Narration
-        status: Done
-      - name: Voice acting
-        status: To do
-      - name: Body acting
-        status: To do
-      - name: Post-production
-        status: To do
-    help:
-      - role: Voice actress - half-body ok
-        status: Tentative
-        kind: Volunteer
-        note: ...
-      - role: Half-body actor
-        status: Tentative
-        kind: Volunteer
-        note: ...
-
-  - title: Board game
+  - title: "Game World: Board Game"
     activity: Queued
     commitment: Committed
     focus: Around 2 months
@@ -102,9 +70,71 @@ projects:
         kind: Volunteer
         note: 
 
-  - title: "Dragon and the Princess"
+  - title: "Video: Adventure"
+    activity: Queued
+    commitment: Committed
+    focus: Around 2-3 months
+    summary: ...
+    steps:
+      - name: Writing
+        status: Done
+      - name: Avatar with sword
+        status: To do
+      - name: Avatar with page
+        status: To do
+      - name: Avatar with colored panel
+        status: To do
+      - name: Narration
+        status: Done
+      - name: Voice acting
+        status: To do
+      - name: Body acting
+        status: To do
+      - name: Post-production
+        status: To do
+    help:
+      - role: Voice actress
+        status: Tentative
+        kind: Volunteer
+        note: Half-body ok. Quest ok.
+      - role: Half-body actor
+        status: Tentative
+        kind: Volunteer
+        note: ...
+        
+  - title: "Video: The Patronizing Programmer"
+    activity: Incubating
+    commitment: Likely
+    focus: Unknown
+    
+  - title: "Video: Catfeine"
+    activity: Incubating
+    commitment: Likely
+    focus: Unknown
+        
+  - title: "Video: Cosmoteer"
     activity: Parked
+    commitment: Tentative
+    focus: Unknown
+        
+  - title: "Video: Peace"
+    activity: Parked
+    commitment: Tentative
+    focus: Unknown
+
+  - title: "Video: The Dragon and the Princess"
+    activity: Incubating
     commitment: Very Tentative
     focus: Too ambitious for the near future
     summary: 
+    
+  - title: "Video: Retro games"
+    activity: Incubating
+    commitment: Very Tentative
+    focus: Possibly too ambitious
+    
+  - title: "Game World: Fate of Light"
+    activity: Parked
+    commitment: Very Tentative
+    focus: Unknown
 

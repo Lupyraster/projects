@@ -1,23 +1,20 @@
 # Project Queue
 
-A small public project-status site generated from `projects.yaml`. It creates:
-
-- `/` — the current focus, ordered queue, and later projects
-- `/help/` — open volunteer roles and information requests collected from every project
+A small public project-status site generated from `projects.yaml`. The single page shows the current focus, ordered queue, later projects, and expandable open-help details.
 
 ## Edit the page
 
-Edit `projects.yaml`, then preview the generated files locally:
+Edit `projects.yaml`, then build and preview the site locally with one command:
 
 ```bash
-cargo run
-python3 -m http.server 8000 --directory dist
+cargo run -- --serve
 ```
 
-Open <http://localhost:8000/>. Do not edit files in `dist/`; the next build replaces them.
-This local preview does not make a commit, push anything, or contact GitHub. After changing the YAML or site code, stop the server if necessary, run `cargo run` again, and refresh the browser.
+The program prints the local URL, normally <http://127.0.0.1:8000/>. Press Ctrl+C to stop it. This preview does not make a commit, push anything, or contact GitHub. Do not edit files in `dist/`; the next build replaces them.
 
-The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Tentative`, and `Unlikely`. Activity accepts `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, and `Abandoned`. Help status accepts `Needed`, `Tentative`, and `Found`.
+Run `cargo run` without options to build without starting the server. Run `cargo run -- --help` to see the options, including `--port` for choosing another local port.
+
+The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Tentative`, and `Unlikely`. Activity accepts `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, and `Abandoned`. Help status accepts `Needed`, `Tentative`, and `Found`. Both `focus` and `waiting_on` may be omitted or left blank.
 
 ## Publish at `username.github.io/projects/`
 
