@@ -132,30 +132,11 @@ a { color: inherit; }
 
 .project-row {
   position: relative;
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
   min-width: 0;
   scroll-margin-top: 14px;
 }
 
 .project-row + .project-row { border-top: 1px solid var(--border); }
-
-.project-row--current,
-.project-row--later {
-  display: block;
-  border: 0;
-}
-
-.rank {
-  display: flex;
-  justify-content: center;
-  padding-top: 17px;
-  border-right: 1px solid var(--border-light);
-  color: var(--gray-light);
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
 
 .project-content { min-width: 0; padding: 14px 16px; }
 
@@ -254,21 +235,29 @@ a { color: inherit; }
 }
 
 .project-needs > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
+  min-width: 0;
 }
 
-.need-item + .need-item::before {
-  content: "·";
-  margin-right: 18px;
-  color: var(--border);
+.project-need + .project-need {
+  border-top: 1px solid var(--border-light);
 }
 
-.need-status {
-  margin-left: 3px;
-  color: var(--amber);
-  font-size: 0.75rem;
+.project-need summary {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 29px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.project-need summary::-webkit-details-marker { display: none; }
+.project-need-role { color: var(--gray); }
+.project-need summary:hover .project-need-role { color: var(--red-dark); }
+
+.project-need .help-detail {
+  padding: 3px 0 9px 20px;
 }
 
 .progress {
@@ -353,7 +342,8 @@ a { color: inherit; }
   transition: transform 120ms ease;
 }
 
-.help-item[open] .help-chevron { transform: rotate(45deg); }
+.help-item[open] .help-chevron,
+.project-need[open] .help-chevron { transform: rotate(45deg); }
 .help-item summary:hover .help-role { color: var(--red-dark); }
 
 .help-role,
@@ -372,13 +362,13 @@ a { color: inherit; }
 
 .help-project {
   color: var(--gray-light);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
 }
 
 .help-status {
   justify-self: end;
   color: var(--red);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   text-transform: lowercase;
 }
 
@@ -440,13 +430,10 @@ a { color: inherit; }
   .site-nav { min-height: 56px; }
   .brand { font-size: 0.9rem; }
   .main-content { padding-top: 18px; }
-  .project-row { grid-template-columns: 36px minmax(0, 1fr); }
   .project-content { padding: 13px 12px; }
   .project-title-line { align-items: flex-start; flex-direction: column; gap: 7px; }
   .project-tags { justify-content: flex-start; }
   .project-needs { grid-template-columns: 1fr; gap: 4px; }
-  .need-item { display: block; }
-  .need-item + .need-item::before { content: ""; margin: 0; }
   .progress summary { grid-template-columns: auto 1fr; }
   .progress-track { display: none; }
   .help-item summary {

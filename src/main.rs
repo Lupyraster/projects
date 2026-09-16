@@ -21,7 +21,8 @@ struct Site {
 struct Project {
     title: String,
     activity: String,
-    commitment: String,
+    #[serde(default)]
+    commitment: Option<String>,
     #[serde(default)]
     focus: Option<String>,
     waiting_on: Option<String>,
@@ -42,6 +43,7 @@ struct HelpItem {
     role: String,
     status: String,
     kind: Option<String>,
+    summary: Option<String>,
     note: Option<String>,
 }
 
@@ -262,11 +264,17 @@ fn validate(data: &Data) -> Result<(), String> {
         if project.title.trim().is_empty() {
             return Err("Every project needs a title".into());
         }
-        if !commitments.contains(project.commitment.as_str()) {
-            return Err(format!(
-                "{}: unknown commitment '{}'",
-                project.title, project.commitment
-            ));
+        if let Some(commitment) = project
+            .commitment
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+        {
+            if !commitments.contains(commitment) {
+                return Err(format!(
+                    "{}: unknown commitment '{}'",
+                    project.title, commitment
+                ));
+            }
         }
         if !activities.contains(project.activity.as_str()) {
             return Err(format!(
@@ -403,7 +411,47 @@ fn progress(project: &Project) -> String {
     )
 }
 
-fn project_help(items: &[HelpItem]) -> String {
+fn help_summary(item: &HelpItem) -> Option<&str> {
+    item.summary
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| {
+            item.note
+                .as_deref()
+                .filter(|value| !value.trim().is_empty())
+        })
+}
+
+fn help_detail(project: &Project, item: &HelpItem, show_focus: bool) -> String {
+    let summary = help_summary(item)
+        .map(|value| format!(r#"<p>{}</p>"#, escape(value)))
+        .unwrap_or_default();
+    let kind = item
+        .kind
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .map(|value| format!(r#"<div><dt>Type</dt><dd>{}</dd></div>"#, escape(value)))
+        .unwrap_or_default();
+    let focus = if show_focus {
+        project
+            .focus
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .map(|value| format!(r#"<div><dt>Focus</dt><dd>{}</dd></div>"#, escape(value)))
+            .unwrap_or_default()
+    } else {
+        String::new()
+    };
+    let metadata = if kind.is_empty() && focus.is_empty() {
+        String::new()
+    } else {
+        format!(r#"<dl>{kind}{focus}</dl>"#)
+    };
+    format!(r#"<div class="help-detail">{summary}{metadata}</div>"#)
+}
+
+fn project_help(project: &Project) -> String {
+    let items = &project.help;
     let open = items
         .iter()
         .filter(|item| item.status != "Found")
@@ -414,30 +462,47 @@ fn project_help(items: &[HelpItem]) -> String {
     let roles = open
         .iter()
         .map(|item| {
-            let status = if item.status == "Tentative" {
-                r#" <span class="need-status">tentative</span>"#.to_string()
-            } else {
-                String::new()
-            };
             format!(
-                r#"<span class="need-item">{}{status}</span>"#,
-                escape(&item.role)
+                r#"
+          <details class="project-need">
+            <summary>
+              <span class="help-chevron" aria-hidden="true"></span>
+              <span class="project-need-role">{}</span>
+              <span class="help-status help-status--{}">{}</span>
+            </summary>
+            {}
+          </details>"#,
+                escape(&item.role),
+                slug(&item.status),
+                escape(&item.status),
+                help_detail(project, item, false)
             )
         })
         .collect::<String>();
     format!(
         r#"
-      <div class="project-needs"><span class="needs-label">Needs</span><div>{roles}</div></div>"#
+      <div class="project-needs"><span class="needs-label">Needs</span><div class="project-need-list">{roles}</div></div>"#
     )
 }
 
-fn project_row(project: &Project, position: Option<usize>, context: &str) -> String {
-    let rank = position
-        .map(|number| format!(r#"<span class="rank">{number}</span>"#))
-        .unwrap_or_default();
+fn project_row(project: &Project, context: &str) -> String {
     let activity = match (context, project.activity.as_str()) {
         ("queue", "Queued") | ("current", "Active") => String::new(),
         _ => pill(&project.activity, &format!("activity-{}", project.activity)),
+    };
+    let commitment = project
+        .commitment
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .map(|value| match (context, value) {
+            ("current" | "queue", "Committed") => String::new(),
+            _ => pill(value, &format!("commitment-{value}")),
+        })
+        .unwrap_or_default();
+    let tags = if commitment.is_empty() && activity.is_empty() {
+        String::new()
+    } else {
+        format!(r#"<div class="project-tags">{commitment}{activity}</div>"#)
     };
     let waiting = project
         .waiting_on
@@ -465,11 +530,10 @@ fn project_row(project: &Project, position: Option<usize>, context: &str) -> Str
     format!(
         r#"
   <article class="project-row project-row--{context}" id="{}">
-    {rank}
     <div class="project-content">
       <div class="project-title-line">
         <h3>{}</h3>
-        <div class="project-tags">{}{activity}</div>
+        {tags}
       </div>
       {focus}
       {waiting}
@@ -479,11 +543,7 @@ fn project_row(project: &Project, position: Option<usize>, context: &str) -> Str
   </article>"#,
         slug(&project.title),
         escape(&project.title),
-        pill(
-            &project.commitment,
-            &format!("commitment-{}", project.commitment)
-        ),
-        project_help(&project.help),
+        project_help(project),
         progress(project)
     )
 }
@@ -493,19 +553,6 @@ fn help_overview(data: &Data) -> String {
     let items = help
         .iter()
         .map(|(project, item)| {
-            let kind = item.kind.as_deref().unwrap_or("Help");
-            let note = item
-                .note
-                .as_ref()
-                .filter(|value| !value.trim().is_empty())
-                .map(|value| format!(r#"<p>{}</p>"#, escape(value)))
-                .unwrap_or_default();
-            let focus = project
-                .focus
-                .as_deref()
-                .filter(|value| !value.trim().is_empty())
-                .map(|value| format!(r#"<div><dt>Focus</dt><dd>{}</dd></div>"#, escape(value)))
-                .unwrap_or_default();
             format!(
                 r#"
       <details class="help-item">
@@ -515,19 +562,13 @@ fn help_overview(data: &Data) -> String {
           <span class="help-project">{}</span>
           <span class="help-status help-status--{}">{}</span>
         </summary>
-        <div class="help-detail">
-          {note}
-          <dl>
-            <div><dt>Type</dt><dd>{}</dd></div>
-            {focus}
-          </dl>
-        </div>
+        {}
       </details>"#,
                 escape(&item.role),
                 escape(&project.title),
                 slug(&item.status),
                 escape(&item.status),
-                escape(kind)
+                help_detail(project, item, true)
             )
         })
         .collect::<String>();
@@ -562,7 +603,7 @@ fn render_queue(data: &Data) -> String {
     } else {
         active
             .iter()
-            .map(|project| project_row(project, None, "current"))
+            .map(|project| project_row(project, "current"))
             .collect::<String>()
     };
     let queue_rows = if queue.is_empty() {
@@ -570,8 +611,7 @@ fn render_queue(data: &Data) -> String {
     } else {
         queue
             .iter()
-            .enumerate()
-            .map(|(index, project)| project_row(project, Some(index + 1), "queue"))
+            .map(|project| project_row(project, "queue"))
             .collect::<String>()
     };
     let later_rows = if later.is_empty() {
@@ -579,7 +619,7 @@ fn render_queue(data: &Data) -> String {
     } else {
         later
             .iter()
-            .map(|project| project_row(project, None, "later"))
+            .map(|project| project_row(project, "later"))
             .collect::<String>()
     };
 

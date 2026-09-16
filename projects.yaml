@@ -11,7 +11,7 @@ projects:
     commitment: Committed
     # focus: Current
     summary: The wall 'splode.
-    waiting_on: Still need to know which world and avatar assets will be used for this scene.
+    waiting_on: Still need to know which world and avatar assets will be used for this scene. Can't form any hard plans without seeing the specifics of the sets.
     steps:
 #      - name: Confirm which world and avatar assets that are already available will be used for this scene
 #        status: To do
@@ -68,12 +68,12 @@ projects:
       - role: Play Testers
         status: Needed
         kind: Volunteer
-        note: 
+        note: All skill levels, please!
 
   - title: "Video: Adventure"
     activity: Queued
     commitment: Committed
-    focus: Around 2-3 months
+    focus: Around 3 months
     summary: ...
     steps:
       - name: Writing
@@ -93,14 +93,14 @@ projects:
       - name: Post-production
         status: To do
     help:
-      - role: Voice actress
+      - role: Voice actress - Dragon
         status: Tentative
         kind: Volunteer
         note: Half-body ok. Quest ok.
-      - role: Half-body actor
+      - role: Half-body actor - Yeti
         status: Tentative
         kind: Volunteer
-        note: ...
+        note: Om nom nom.
         
   - title: "Video: The Patronizing Programmer"
     activity: Incubating
@@ -137,4 +137,10 @@ projects:
     activity: Parked
     commitment: Very Tentative
     focus: Unknown
+  
+  - title: "Game World: Scramble"
+    activity: Parked
+    commitment: Very Tentative
+    focus: When am I going to have time for all of this?
+    
 
