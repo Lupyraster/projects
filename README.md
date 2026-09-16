@@ -14,7 +14,9 @@ The program prints the local URL, normally <http://127.0.0.1:8000/>. Press Ctrl+
 
 Run `cargo run` without options to build without starting the server. Run `cargo run -- --help` to see the options, including `--port` for choosing another local port.
 
-The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Tentative`, and `Unlikely`. Activity accepts `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, and `Abandoned`. Help status accepts `Needed`, `Tentative`, and `Found`. `commitment`, `focus`, and `waiting_on` may be omitted or left blank. A help item's expandable description goes in `summary`; the older field name `note` is still accepted.
+Under `site`, only `title` and `updated` are used. The older `introduction` and `owner` fields are obsolete and can be removed.
+
+Each project can have a `summary`, which is displayed directly below its title. The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Tentative`, and `Unlikely`. Activity accepts `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, and `Abandoned`. Help status accepts `Needed`, `Tentative`, and `Found`. `summary`, `commitment`, `focus`, and `waiting_on` may be omitted or left blank. A help item's expandable description also uses `summary`; the older help-item field name `note` is still accepted.
 
 `Committed` is intentionally not displayed for Active or Queued projects because it is normally implied there. Other commitment values still appear, and `Committed` still appears on Later projects where it conveys additional information.
 

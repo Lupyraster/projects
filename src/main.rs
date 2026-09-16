@@ -20,6 +20,8 @@ struct Site {
 #[derive(Deserialize)]
 struct Project {
     title: String,
+    #[serde(default)]
+    summary: Option<String>,
     activity: String,
     #[serde(default)]
     commitment: Option<String>,
@@ -526,6 +528,12 @@ fn project_row(project: &Project, context: &str) -> String {
             )
         })
         .unwrap_or_default();
+    let summary = project
+        .summary
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .map(|value| format!(r#"<p class="project-summary">{}</p>"#, escape(value)))
+        .unwrap_or_default();
 
     format!(
         r#"
@@ -535,6 +543,7 @@ fn project_row(project: &Project, context: &str) -> String {
         <h3>{}</h3>
         {tags}
       </div>
+      {summary}
       {focus}
       {waiting}
       {}
@@ -638,7 +647,7 @@ fn render_queue(data: &Data) -> String {
     </div>
 
     <section class="project-section" aria-labelledby="queue-heading">
-      <div class="section-heading"><h2 id="queue-heading">Up Next</h2><span>{} projects</span></div>
+      <div class="section-heading"><h2 id="queue-heading">Up Next</h2></div>
       <div class="project-list">{queue_rows}</div>
     </section>
 
@@ -656,7 +665,6 @@ fn render_queue(data: &Data) -> String {
         nav(data),
         escape(&data.site.title),
         help_overview(data),
-        queue.len(),
         foot()
     )
 }

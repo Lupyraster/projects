@@ -118,11 +118,6 @@ a { color: inherit; }
   margin-bottom: 8px;
 }
 
-.section-heading span {
-  color: var(--gray-light);
-  font-size: 0.8rem;
-}
-
 .project-list {
   overflow: hidden;
   border: 1px solid var(--border);
@@ -154,6 +149,14 @@ a { color: inherit; }
   font-size: 1.05rem;
   font-weight: 680;
   line-height: 1.35;
+}
+
+.project-summary {
+  max-width: 78ch;
+  margin: 5px 0 0;
+  color: var(--gray);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .project-tags {

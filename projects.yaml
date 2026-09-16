@@ -1,42 +1,25 @@
 site:
   title: Project Queue
-  owner: Lupyraster
   updated: September 16, 2026
-  introduction: >-
-    ... (intro no longer necessary?)
 
 projects:
   - title: Wall crash for [name]
     activity: Active
     commitment: Committed
-    # focus: Current
     summary: The wall 'splode.
     waiting_on: Still need to know which world and avatar assets will be used for this scene. Can't form any hard plans without seeing the specifics of the sets.
     steps:
-#      - name: Confirm which world and avatar assets that are already available will be used for this scene
-#        status: To do
       - name: Build the assets
-        status: In progress
+        status: To do
       - name: Film the scene
         status: To do
       - name: Post-production
         status: To do
-        
-#  - title: Example blocking task
-#    activity: Active
-#    commitment: Committed
- #   focus: Current
- #   summary: Summary of a task that can't proceed yet
- #   waiting_on: Need clarification about shajdlhfklw
-  #  steps:
-   #   - name: Need clarification about aldskfhkasjhgk
-   #     status: To do
 
   - title: "ULARP: optimize and bug fix"
     activity: Queued
     commitment: Committed
     focus: Within weeks
-    summary: Performance work and fixes for the world before adding more features.
     steps:
       - name: Improve framerate when there are lots of walls
         status: To do
@@ -49,13 +32,12 @@ projects:
     activity: Queued
     commitment: Committed
     focus: Within weeks
-    summary: In-world video player
 
   - title: "Game World: Board Game"
     activity: Queued
     commitment: Committed
     focus: Around 2 months
-    summary: Continue development of the abstract strategy game and its VR presentation.
+    summary: Abstract strategy game in sort of the same genre as Chess and Checkers.
     help:
       - role: 3D modeler
         status: Needed
@@ -74,7 +56,6 @@ projects:
     activity: Queued
     commitment: Committed
     focus: Around 3 months
-    summary: ...
     steps:
       - name: Writing
         status: Done
@@ -93,11 +74,11 @@ projects:
       - name: Post-production
         status: To do
     help:
-      - role: Voice actress - Dragon
+      - role: "Voice actress: Dragon"
         status: Tentative
         kind: Volunteer
         note: Half-body ok. Quest ok.
-      - role: Half-body actor - Yeti
+      - role: "Half-body actor: Yeti"
         status: Tentative
         kind: Volunteer
         note: Om nom nom.
@@ -106,32 +87,79 @@ projects:
     activity: Incubating
     commitment: Likely
     focus: Unknown
+    summary: Going to be part of a bigger project.
+    help:
+      - role: "Voice actor: kitty"
+        status: Tentative
+        kind: Volunteer
+        note: Patronizing. Half-body ok.
     
+  - title: "Video: Red Paint"
+    activity: Parked
+    commitment: Likely
+    focus: Unknown
+    help:
+      - role: 3D modeler+texture artist
+        status: Needed
+        kind: Volunteer
+        note: Pretty simple project
+      - role: "Voice actor: Dog"
+        status: Needed
+        kind: Volunteer
+      - role: "Voice actors: E-boys"
+        status: Needed
+        kind: Volunteer
+        note: Half-body probably ok.
+        
   - title: "Video: Catfeine"
     activity: Incubating
     commitment: Likely
     focus: Unknown
+    help:
+      - role: Half-body extras
+        status: Needed
+        kind: Volunteer
+        note: These roles will be a bit odd. I'm sorry.
+      - role: "Voice Actor: Upset cat #1"
+        status: Needed
+        kind: Volunteer
+        note: Poor kitty
+      - role: "Voice Actor: Upset cat #2"
+        status: Needed
+        kind: Volunteer
+        note: Poor kitty
+      - role: "Actor: CEO"
+        status: Needed
+        kind: Volunteer
         
+  - title: "Video: Origin Story"
+    activity: Parked
+    commitment: Very Tentative
+    focus: Unknown
+    
   - title: "Video: Cosmoteer"
     activity: Parked
     commitment: Tentative
     focus: Unknown
+    summary: Writing isn't finished. Custom asset-heavy.
         
   - title: "Video: Peace"
     activity: Parked
     commitment: Tentative
     focus: Unknown
+    summary: Writing isn't finished.
 
   - title: "Video: The Dragon and the Princess"
     activity: Incubating
     commitment: Very Tentative
-    focus: Too ambitious for the near future
-    summary: 
+    summary: Too ambitious for the near future.
+    focus: Unknown
     
   - title: "Video: Retro games"
     activity: Incubating
     commitment: Very Tentative
-    focus: Possibly too ambitious
+    summary: Possibly too ambitious.
+    focus: Unknown
     
   - title: "Game World: Fate of Light"
     activity: Parked
@@ -141,6 +169,7 @@ projects:
   - title: "Game World: Scramble"
     activity: Parked
     commitment: Very Tentative
-    focus: When am I going to have time for all of this?
+    summary: When am I going to have time for all of this?
+    focus: Unknown
     
 
