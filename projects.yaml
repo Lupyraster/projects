@@ -1,0 +1,110 @@
+site:
+  title: Project Queue
+  owner: Lupyraster
+  updated: September 16, 2026
+  introduction: >-
+    This is the current order of my substantial non-work projects. Queue
+    position means priority when a project is runnable; waiting projects may be
+    temporarily passed by the next project that can move forward.
+
+projects:
+  - title: Wall crash for Mana
+    activity: Active
+    commitment: Committed
+    focus: Current focus
+    summary: A special-effect request currently receiving my primary project time.
+    waiting_on: Nothing right now
+    steps:
+      - name: Confirm the final look
+        status: Done
+      - name: Build the effect
+        status: In progress
+      - name: Test it in-world
+        status: To do
+    help:
+      - role: Final visual references from the requester
+        status: Found
+        kind: Input
+
+  - title: "ULARP: optimize and bug fix"
+    activity: Queued
+    commitment: Committed
+    focus: Within weeks
+    summary: Performance work and fixes for the world before adding more features.
+    steps:
+      - name: Profile the busiest scenes
+        status: To do
+      - name: Reduce wall-rendering cost
+        status: To do
+      - name: Regression test with a full group
+        status: To do
+    help:
+      - role: Group playtesters
+        status: Needed
+        kind: Volunteer
+        note: A short multiplayer test after the optimization pass.
+
+  - title: "ULARP: add video player for [name]"
+    activity: Queued
+    commitment: Committed
+    focus: Within weeks
+    summary: Add an in-world player after the related optimization work above it.
+    help:
+      - role: Video URLs and playback requirements
+        status: Tentative
+        kind: Input
+        note: I may need final source URLs and access expectations from the requester.
+
+  - title: "Video: [name]"
+    activity: Incubating
+    commitment: Likely
+    focus: Around 2 months
+    summary: Writing can continue in the background before this enters full production.
+    steps:
+      - name: Writing
+        status: Done
+      - name: Avatar with sword
+        status: To do
+      - name: Avatar with page
+        status: To do
+      - name: Avatar with colored panel
+        status: To do
+      - name: Narration
+        status: Done
+      - name: Voice acting
+        status: To do
+      - name: Body acting
+        status: To do
+      - name: Post-production
+        status: To do
+    help:
+      - role: Female voice actor
+        status: Tentative
+        kind: Volunteer
+        note: ...
+      - role: Half-body actor
+        status: Tentative
+        kind: Volunteer
+        note: ...
+
+  - title: Board game
+    activity: Queued
+    commitment: Committed
+    focus: Around 2 months
+    summary: Continue development of the abstract strategy game and its VR presentation.
+    help:
+      - role: 3D modeler
+        status: Needed
+        kind: Volunteer
+        note: Model a small, consistent set of readable board pieces.
+      - role: Playtesters
+        status: Needed
+        kind: Volunteer
+        note: Test rules, pacing, and deadlock risks.
+
+  - title: "Dragon and the Princess"
+    activity: Parked
+    commitment: Very Tentative
+    focus: No near-term window
+    summary: The concept is larger than I can responsibly schedule right now.
+
