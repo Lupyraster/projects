@@ -1,9 +1,9 @@
 site:
-  title: Project Queue
+  title: Lupy's Loopy Projects
   updated: September 16, 2026
 
 projects:
-  - title: Wall crash for [name]
+  - title: Wall crash for Mana
     activity: Active
     commitment: Committed
     summary: The wall 'splode.
@@ -28,7 +28,7 @@ projects:
       - name: Make sure late-joiners will see the correct terrain
         status: To do
 
-  - title: "ULARP: add video player for [name]"
+  - title: "ULARP: add video player for Gaspar"
     activity: Queued
     commitment: Committed
     focus: Within weeks
