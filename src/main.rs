@@ -348,7 +348,7 @@ fn head(title: &str, asset_prefix: &str) -> String {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#75433f">
+  <meta name="theme-color" content="#74464c">
   <title>{}</title>
   <link rel="icon" href="{asset_prefix}assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{asset_prefix}assets/style.css">

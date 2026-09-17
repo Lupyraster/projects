@@ -1,8 +1,8 @@
 :root {
-  --red: #75433f;
-  --red-dark: #59312e;
-  --red-soft: #efe2df;
-  --header-muted: #e2d4d0;
+  --red: #74464c;
+  --red-dark: #533238;
+  --red-soft: #ede1e3;
+  --header-muted: #e4d6d8;
   --off-white: #f7f5f0;
   --surface: #fffefa;
   --text: #292b2c;
@@ -42,6 +42,7 @@ a { color: inherit; }
 
 .site-nav {
   min-height: 62px;
+  padding-inline: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -184,7 +185,7 @@ a { color: inherit; }
 }
 
 .pill--commitment-committed {
-  border-color: #cda9a4;
+  border-color: #c9a8ad;
   background: var(--red-soft);
   color: var(--red-dark);
 }
@@ -423,7 +424,7 @@ a { color: inherit; }
   font-size: 0.9rem;
 }
 
-:focus-visible { outline: 3px solid #bf8178; outline-offset: 3px; }
+:focus-visible { outline: 3px solid #b27a83; outline-offset: 3px; }
 
 @media (max-width: 820px) {
   .shell { width: min(100% - 28px, 1080px); }
