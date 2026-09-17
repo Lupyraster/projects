@@ -32,10 +32,6 @@ All displayed content comes from `projects.yaml`. The `site` object contains `ti
 
 Help items use `Needed`, `Tentative`, or `Found` for `status`. Their optional `summary` text appears when the item is expanded. Found items remain associated with their projects but are omitted from Help Wanted.
 
-Set a finished project's activity to `Completed`. Completed and Abandoned projects remain in `projects.yaml` but are not rendered on the public page. `Done` is used for individual step statuses, not project activity.
-
-Committed badges are hidden for Active and Queued projects, where they are normally redundant. Other commitment values remain visible.
-
 ## GitHub Pages
 
 The included workflow builds and deploys the site whenever the `master` branch is pushed. To publish at `https://YOUR_USERNAME.github.io/projects/`:
