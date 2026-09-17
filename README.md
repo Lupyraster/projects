@@ -1,59 +1,62 @@
 # Project Queue
 
-A small public project-status site generated from `projects.yaml`. The single page shows the current focus, ordered queue, later projects, and expandable open-help details.
+A static public status page generated from `projects.yaml`. It shows the current focus, the ordered queue, later projects, progress, and open requests for help.
 
-## Edit the page
+## Local development
 
-Edit `projects.yaml`, then build and preview the site locally with one command:
+Rust is the only required dependency. Build the site and start the local preview server with:
 
 ```bash
 cargo run -- --serve
 ```
 
-The program prints the local URL, normally <http://127.0.0.1:8000/>. Press Ctrl+C to stop it. This preview does not make a commit, push anything, or contact GitHub. Do not edit files in `dist/`; the next build replaces them.
+The command prints the local URL. Press Ctrl+C to stop the server. Other available commands are:
 
-Run `cargo run` without options to build without starting the server. Run `cargo run -- --help` to see the options, including `--port` for choosing another local port.
+```bash
+cargo run                         # Build into dist/
+cargo run -- --help               # Show command-line options
+cargo run -- --serve --port 8080  # Use another local port
+```
 
-Under `site`, only `title` and `updated` are used. The older `introduction` and `owner` fields are obsolete and can be removed.
+Files in `dist/` are generated and replaced on every build. Edit `projects.yaml`, `src/main.rs`, or files under `static/` instead.
 
-Each project can have a `summary`, which is displayed directly below its title. The accepted commitment values are `Committed`, `Likely`, `Tentative`, `Very Tentative`, and `Unlikely`. Activity accepts `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, and `Abandoned`. Help status accepts `Needed`, `Tentative`, and `Found`. `summary`, `commitment`, `focus`, and `waiting_on` may be omitted or left blank. A help item's expandable description also uses `summary`; the older help-item field name `note` is still accepted.
+## Project data
 
-`Committed` is intentionally not displayed for Active or Queued projects because it is normally implied there. Other commitment values still appear, and `Committed` still appears on Later projects where it conveys additional information.
+All displayed content comes from `projects.yaml`. The `site` object contains `title` and `updated`. Projects appear in file order and support these fields:
 
-## Publish at `username.github.io/projects/`
+- `title` and optional `summary`
+- `activity`: `Active`, `Queued`, `Incubating`, `Waiting`, `Parked`, `Completed`, or `Abandoned`
+- optional `commitment`: `Committed`, `Likely`, `Tentative`, `Very Tentative`, or `Unlikely`
+- optional `focus` and `waiting_on`
+- optional `steps` and `help` lists
 
-1. On GitHub, create a public repository named exactly `projects`. Do not initialize it with a README, because this folder already has one.
-2. In this folder, run the commands below, replacing `YOUR_USERNAME`:
+Help items use `Needed`, `Tentative`, or `Found` for `status`. Their optional `summary` text appears when the item is expanded. Found items remain associated with their projects but are omitted from Help Wanted.
 
-   ```bash
-   git init
-   git add .
-   git commit -m "Create project status site"
-   git branch -M master
-   git remote add origin https://github.com/YOUR_USERNAME/projects.git
-   git push -u origin master
-   ```
+Committed badges are hidden for Active and Queued projects, where they are normally redundant. Other commitment values remain visible.
 
-3. On GitHub, open the repository, then go to **Settings → Pages**. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-4. Open the repository's **Actions** tab. The “Deploy project status site” workflow should run after the push. Its deploy job will show the published URL.
+## GitHub Pages
 
-The repository name controls the default project-site path. A repository named `projects` publishes at `https://YOUR_USERNAME.github.io/projects/`. The special repository name `YOUR_USERNAME.github.io` instead publishes an account site at `https://YOUR_USERNAME.github.io/`.
+The included workflow builds and deploys the site whenever the `master` branch is pushed. To publish at `https://YOUR_USERNAME.github.io/projects/`:
 
-Future status updates are normally just:
+1. Create a GitHub repository named `projects`.
+2. Push this repository to its `master` branch.
+3. Open **Settings → Pages** on GitHub and set **Source** to **GitHub Actions**.
+
+For the initial push:
+
+```bash
+git init
+git add .
+git commit -m "Create project status site"
+git branch -M master
+git remote add origin https://github.com/YOUR_USERNAME/projects.git
+git push -u origin master
+```
+
+Later content updates normally require only:
 
 ```bash
 git add projects.yaml
 git commit -m "Update project statuses"
 git push
 ```
-
-The workflow rebuilds and republishes the site after each push to `master`.
-
-## What `git commit -am` does
-
-`git commit -am "Message"` combines two options:
-
-- `-a` automatically stages changes to files Git already tracks, including deletions.
-- `-m` supplies the commit message on the command line.
-
-It does **not** add new, previously untracked files. For a new file, use `git add FILE` first—or use `git add .` and then `git commit -m "Message"`.

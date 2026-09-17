@@ -21,11 +21,11 @@ projects:
     commitment: Committed
     focus: Within weeks
     steps:
-      - name: Improve framerate when there are lots of walls
+      - name: Improve framerate when there are lots of walls.
         status: To do
-      - name: Make concurrent wall placements not interfere with each other
+      - name: Make concurrent wall placements not interfere with each other.
         status: To do
-      - name: Make sure late-joiners will see the correct terrain
+      - name: Make sure late-joiners will see the correct terrain.
         status: To do
 
   - title: "ULARP: add video player for Gaspar"
@@ -102,7 +102,7 @@ projects:
       - role: 3D modeler+texture artist
         status: Needed
         kind: Volunteer
-        note: Pretty simple project
+        note: Pretty simple project.
       - role: "Voice actor: Dog"
         status: Needed
         kind: Volunteer
@@ -131,6 +131,17 @@ projects:
       - role: "Actor: CEO"
         status: Needed
         kind: Volunteer
+    steps:
+      - name: Writing
+        status: To do
+      - name: Asset creation
+        status: To do
+      - name: Narration
+        status: To do
+      - name: Acting
+        status: To do
+      - name: Post production
+        status: To do
         
   - title: "Video: Origin Story"
     activity: Parked

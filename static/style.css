@@ -2,6 +2,7 @@
   --red: #75433f;
   --red-dark: #59312e;
   --red-soft: #efe2df;
+  --header-muted: #e2d4d0;
   --off-white: #f7f5f0;
   --surface: #fffefa;
   --text: #292b2c;
@@ -37,23 +38,24 @@ a { color: inherit; }
   margin-inline: auto;
 }
 
+.site-header { background: var(--red); }
+
 .site-nav {
   min-height: 62px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  border-bottom: 1px solid var(--border);
 }
 
 .brand {
-  color: var(--red-dark);
+  color: var(--off-white);
   font-weight: 750;
   text-decoration: none;
 }
 
 .updated {
-  color: var(--gray-light);
+  color: var(--header-muted);
   font-size: 0.8rem;
 }
 

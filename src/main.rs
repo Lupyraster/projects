@@ -340,21 +340,19 @@ fn nav(data: &Data) -> String {
     )
 }
 
-fn head(title: &str, description: &str, asset_prefix: &str) -> String {
+fn head(title: &str, asset_prefix: &str) -> String {
     format!(
         r##"<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{}">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#75433f">
   <title>{}</title>
   <link rel="icon" href="{asset_prefix}assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{asset_prefix}assets/style.css">
 </head>"##,
-        escape(description),
         escape(title)
     )
 }
@@ -635,7 +633,7 @@ fn render_queue(data: &Data) -> String {
     format!(
         r#"{}
 <body>
-  <header class="shell">{}</header>
+  <header class="site-header"><div class="shell">{}</div></header>
   <main class="shell main-content">
     <h1 class="sr-only">{}</h1>
     <div class="overview">
@@ -657,11 +655,7 @@ fn render_queue(data: &Data) -> String {
     </section>
   </main>
   {}"#,
-        head(
-            &data.site.title,
-            "Current project status, queue, progress, and open help requests.",
-            ""
-        ),
+        head(&data.site.title, ""),
         nav(data),
         escape(&data.site.title),
         help_overview(data),
