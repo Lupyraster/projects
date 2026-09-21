@@ -7,7 +7,6 @@ projects:
     activity: Active
     commitment: Committed
     summary: The wall 'splode.
-    waiting_on: Still need to know which world and avatar assets will be used for this scene. Can't form any hard plans without seeing the specifics of the sets.
     steps:
       - name: Build the assets
         status: To do
@@ -100,7 +99,7 @@ projects:
     focus: Unknown
     help:
       - role: 3D modeler+texture artist
-        status: Needed
+        status: Tentative
         kind: Volunteer
         note: Pretty simple project.
       - role: "Voice actor: Dog"
