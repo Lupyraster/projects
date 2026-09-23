@@ -1,6 +1,6 @@
 site:
   title: Lupy's Loopy Projects
-  updated: September 16, 2026
+  updated: September 22, 2026
 
 projects:
   - title: Wall crash for Mana
@@ -81,6 +81,11 @@ projects:
         status: Tentative
         kind: Volunteer
         note: Om nom nom.
+
+  - title: "Avatar: Yellow vulpis"
+    activity: Queued
+    commitment: Committed
+    focus: Around 4 months
         
   - title: "Video: The Patronizing Programmer"
     activity: Incubating
@@ -141,6 +146,11 @@ projects:
         status: To do
       - name: Post production
         status: To do
+
+  - title: "Video: Species"
+    activity: Incubating
+    commitment: Likely
+    focus: Unknown
         
   - title: "Video: Origin Story"
     activity: Parked
