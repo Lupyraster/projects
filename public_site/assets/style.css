@@ -457,3 +457,21 @@ a { color: inherit; }
 
 .project-summary { white-space: pre-wrap; overflow-wrap: anywhere; }
 .help-items { min-height: 44px; }
+
+[hidden] { display: none !important; }
+.role-filters { display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border-light); }
+button.pill { font-family:inherit;cursor:pointer;line-height:1.3; }
+button.pill:hover { border-color:var(--red); }
+button.pill[aria-pressed="true"] { background:var(--red-soft);color:var(--red-dark);border-color:#cda4a4; }
+.help-item summary { grid-template-columns:12px minmax(0,1fr);gap:4px 10px; }
+.help-item .help-chevron { grid-column:1;grid-row:1; }
+.help-title-line { min-width:0;font-size:0.86rem;line-height:1.5; }
+.help-item .help-title-line { grid-column:2;grid-row:1; }
+.help-item .help-project { grid-column:2;grid-row:2; }
+.help-title-line .help-role,.help-item .help-project { white-space:normal;overflow-wrap:anywhere;min-width:0; }
+.help-title-line .help-role { vertical-align:middle; }
+.help-tags { display:inline; }
+.help-tags .pill { margin-left:6px;margin-block:0;vertical-align:middle;white-space:nowrap; }
+.project-need summary { grid-template-columns:12px minmax(0,1fr); }
+.project-need .help-title-line { grid-column:2; }
+.help-detail p { white-space:pre-wrap;overflow-wrap:anywhere; }
