@@ -475,3 +475,7 @@ button.pill[aria-pressed="true"] { background:var(--red-soft);color:var(--red-da
 .project-need summary { grid-template-columns:12px minmax(0,1fr); }
 .project-need .help-title-line { grid-column:2; }
 .help-detail p { white-space:pre-wrap;overflow-wrap:anywhere; }
+
+/* Keep sparse current work separate from the two growing queues below it. */
+.main-content > .current-panel { margin-bottom: 22px; }
+.overview > .project-section { margin-top: 0; }
