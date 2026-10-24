@@ -2,12 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="theme-color" content="#7d4141"><title>Lupy&#039;s Loopy Projects</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"></head>
 <body><header class="site-header"><div class="shell"><div class="site-nav"><a class="brand" href="./">Lupy&#039;s Loopy Projects</a><span class="updated">Updated Oct 23, 2026</span></div></div></header>
 <main class="shell main-content"><h1 class="sr-only">Lupy&#039;s Loopy Projects</h1>
-<section class="current-panel" aria-labelledby="now-heading"><div class="panel-heading"><h2 id="now-heading">Current Focus</h2></div><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Chroma Key avatar asset</h3></div><p class="project-summary">Still have some minor modifications to consider/investigate before I consider this thing done.
-
-* Try to make it work with less emission.
-* Toggle between box and spheroid.
-* More than one such object on a single avatar.
-</p></div></article><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Stage lighting?</h3></div><p class="project-summary">This could be like the chroma key box but with spotlights or point lights.
+<section class="current-panel" aria-labelledby="now-heading"><div class="panel-heading"><h2 id="now-heading">Current Focus</h2></div><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Stage lighting?</h3></div><p class="project-summary">This could be like the chroma key box but with spotlights or point lights.
 
 There&#039;s already an asset that does this. Hopefully it can be tweaked.</p></div></article></section>
 <div class="overview"><section class="project-section" aria-labelledby="next-heading"><div class="section-heading"><h2 id="next-heading">Next Up</h2></div><div class="project-list"><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Project tracker/dashboard</h3></div><p class="project-summary">
@@ -29,7 +24,15 @@ Half-body probably not suitable for the avatar needed, unfortunately.</p></div><
 _Very_ heavy on custom assets. Probably too ambitious.</p></div></article><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Video: Retro Games</h3></div><p class="project-summary">Possibly too ambitious.</p></div></article><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Game World: Fate of Light</h3></div></div></article><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Game World: Scramble</h3></div><p class="project-summary">When am I going to have time for all this stuff?</p></div></article></div></section>
 
 <section class="project-section project-section--completed" aria-labelledby="completed-heading"><div class="section-heading"><h2 id="completed-heading">Completed</h2></div><div class="project-list"><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Door crash for Mana</h3></div><p class="project-summary">The door &#039;splode.
-</p></div></article></div></section>
+</p></div></article><article class="project-row"><div class="project-content"><div class="project-title-line"><h3>Chroma Key avatar asset</h3></div><p class="project-summary">Still have some minor modifications to consider/investigate before I consider this thing done.
+
+* Try to make it work with less emission.
+* Toggle between box and spheroid.
+* More than one such object on a single avatar.
+
+- - -
+
+Turns out I can&#039;t disable bloom on just a particular object because it&#039;s a screen-space operation outside of the control of any shader. I seem to have found the best compromise of graphics settings that Unity allows, so this one looks done.</p></div></article></div></section>
 </main><script>(() => {
   const selected = new Set();
   const toolbar = document.querySelector('.role-filters');
